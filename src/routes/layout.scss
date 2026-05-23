@@ -65,12 +65,13 @@ input {
 			&:active {
 				background-color: #9191a5;
 			}
+		}
 
-			&.inverse {
-				background-color: #9191a5;
-				&:active {
-					background-color: #b1b1c5;
-				}
+		&.inverse::file-selector-button {
+			background-color: #9191a5;
+
+			&:active {
+				background-color: #b1b1c5;
 			}
 		}
 	}
