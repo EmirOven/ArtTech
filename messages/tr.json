@@ -1,5 +1,10 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"email": "Eposta",
+	"password": "Şifre",
+	"login_action": "Giriş Yap",
+	"login": "Giriş",
+	"wrong_email_or_pass": "Yanlış eposta ve/veya şifre!",
 	"hello_world": "Hello, {name} from tr!",
 	"new": "Yeni",
 	"available_items": "Halihazırda bulunan ürünler:",
@@ -23,5 +28,7 @@
 	"item_delete_success": "Ürün başarıyla silindi!",
 	"tag_create_success": "Kategori başarıyla oluşturuldu!",
 	"tag_delete_success": "Kategori başarıyla silindi!",
-	"this_lang": "Türkçe"
+	"this_lang": "Türkçe",
+	"not_permitted": "Bu sayfaya girmek için izniniz yok!",
+	"return_to_home": "Anasayfaya dön"
 }

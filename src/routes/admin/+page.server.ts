@@ -1,23 +1,23 @@
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { supabaseAdmin } from '$lib/server/supabaseAdmin';
+import { supabase } from '$lib/supabaseClient';
 
 export const load: PageServerLoad = async () => {
-	const { data: itemData, error: itemError } = await supabaseAdmin.from('item').select();
+	const { data: itemData, error: itemError } = await supabase.from('item').select();
 
 	if (itemError) {
 		console.error('Error loading items:', itemError.message);
 		return { success: false };
 	}
 
-	const { data: tagData, error: tagError } = await supabaseAdmin.from('tag').select();
+	const { data: tagData, error: tagError } = await supabase.from('tag').select();
 
 	if (tagError) {
 		console.error('Error loading tags:', tagError.message);
 		return { success: false };
 	}
 
-	const { data: tagNameData, error: tagNameError } = await supabaseAdmin.from('tag_item').select();
+	const { data: tagNameData, error: tagNameError } = await supabase.from('tag_item').select();
 
 	if (tagNameError) {
 		console.error('Error loading tagNames:', tagNameError.message);
@@ -48,7 +48,7 @@ export const actions = {
 		const extension = image.name.split('.').pop();
 		const imagePath = `${crypto.randomUUID()}${extension ? '.' + extension : ''}`;
 
-		const { error: uploadError } = await supabaseAdmin.storage
+		const { error: uploadError } = await supabase.storage
 			.from('item_images')
 			.upload(imagePath, image, {
 				upsert: false,
@@ -60,7 +60,7 @@ export const actions = {
 			return fail(500, { uploadError: true });
 		}
 
-		const { data: itemData, error: insertError } = await supabaseAdmin
+		const { data: itemData, error: insertError } = await supabase
 			.from('item')
 			.insert({
 				name,
@@ -75,7 +75,7 @@ export const actions = {
 			return fail(500, { insertError: true });
 		}
 
-		const { error: tagError } = await supabaseAdmin.from('tag_item').insert(
+		const { error: tagError } = await supabase.from('tag_item').insert(
 			tags.map((tag) => {
 				return { item_id: itemData[0].id, tag_name: tag };
 			})
@@ -93,7 +93,7 @@ export const actions = {
 		const formData = await request.formData();
 		const tag = String(formData.get('name') ?? '').trim();
 
-		const { error: insertError } = await supabaseAdmin.from('tag').insert({
+		const { error: insertError } = await supabase.from('tag').insert({
 			name: tag
 		});
 
@@ -112,7 +112,7 @@ export const actions = {
 		const formData = await request.formData();
 		const id = Number(formData.get('id') ?? '');
 
-		const { error: deleteError } = await supabaseAdmin.from('item').delete().eq('id', id);
+		const { error: deleteError } = await supabase.from('item').delete().eq('id', id);
 
 		if (deleteError) {
 			console.error('Error inserting tag:', deleteError.message);
@@ -126,7 +126,7 @@ export const actions = {
 		const formData = await request.formData();
 		const name = String(formData.get('name') ?? '');
 
-		const { error: deleteError } = await supabaseAdmin.from('tag').delete().eq('name', name);
+		const { error: deleteError } = await supabase.from('tag').delete().eq('name', name);
 
 		if (deleteError) {
 			console.error('Error inserting tag:', deleteError.message);

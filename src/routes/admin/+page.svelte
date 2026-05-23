@@ -4,6 +4,10 @@
 	import InsertItemModal from '$lib/components/Admin/InsertItemModal.svelte';
 	import InsertTagModal from '$lib/components/Admin/InsertTagModal.svelte';
 	import Tag from '$lib/components/Admin/Tag.svelte';
+	import type { User } from '@supabase/supabase-js';
+	import { goto, onNavigate } from '$app/navigation';
+	import { supabase } from '$lib/supabaseClient.js';
+	import { onMount } from 'svelte';
 
 	let { data } = $props();
 	let showInsertItemModal = $state(false);
@@ -12,10 +16,41 @@
 	$effect(() => {
 		console.log(data);
 	});
+
+	let userData = $state<User | null>(null);
+
+	onNavigate(async () => {
+		const {
+			data: { user },
+			error
+		} = await supabase.auth.getUser();
+
+		console.log(error);
+
+		userData = user;
+	});
+
+	onMount(async () => {
+		const {
+			data: { user },
+			error
+		} = await supabase.auth.getUser();
+
+		console.log(error);
+
+		userData = user;
+	});
 </script>
 
 <div class="container">
-	{#if data.success == true}
+	{#if userData == null}
+		<h1>{m.not_permitted()}</h1>
+		<button
+			onclick={() => {
+				goto('/');
+			}}>{m.return_to_home()}</button
+		>
+	{:else if data.success == true}
 		<h1>{m.available_items()}</h1>
 		{#if data.items?.length == 0}
 			{m.no_items_admin()}
@@ -28,12 +63,11 @@
 					link={item.link}
 					name={item.name}
 					tags={data.tagNames != undefined
-						? (data.tagNames
-								.map((value) => {
-									if (value.item_id == item.id) {
-										return value.tag_name;
-									}
-								}) as string[])
+						? (data.tagNames.map((value) => {
+								if (value.item_id == item.id) {
+									return value.tag_name;
+								}
+							}) as string[])
 						: []}
 				/>
 			{/each}

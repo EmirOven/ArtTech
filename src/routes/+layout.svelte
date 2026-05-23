@@ -43,10 +43,11 @@
 
 	.content {
 		width: 80%;
-		max-height: 100%;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 
 		@media only screen and (max-width: 800px) {
 			width: 100%;

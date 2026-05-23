@@ -1,5 +1,10 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
+  "email":"Email",
+  "password": "Password",
+  "login_action": "Login",
+  "login": "Login",
+  "wrong_email_or_pass": "Wrong email and/or password!",
 	"hello_world": "Hello, {name} from en!",
 	"new": "New",
 	"available_items": "Currently available items:",
@@ -23,5 +28,7 @@
 	"item_delete_success": "Item has been deleted successfully!",
 	"tag_create_success": "Tag has been created successfully!",
 	"tag_delete_success": "Tag has been deleted successfully!",
-	"this_lang": "English"
+	"this_lang": "English",
+  "not_permitted": "You are not permitted to enter here!",
+  "return_to_home": "Return To Home"
 }

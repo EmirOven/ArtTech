@@ -48,7 +48,8 @@ select {
 }
 
 input {
-	&[type='text'] {
+	&[type='text'],
+	&[type='password'] {
 		padding: 0.15rem 0.5rem;
 		border-radius: 0.5rem;
 	}
