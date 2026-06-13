@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { env } from '$env/dynamic/public';
 	import { m } from '$lib/paraglide/messages';
+	import { supabase } from '$lib/supabaseClient';
 
 	interface Props {
 		name: string;
 	}
 
 	let props: Props = $props();
-	let IMG_URL: string | null = $state<string>('');
 </script>
 
 <div class="item_container">
@@ -16,22 +15,27 @@
 	<form
 		action="?/remove_tag"
 		method="POST"
-		use:enhance={() => {
+		use:enhance={async ({ formData }) => {
+			const {
+				data: { session }
+			} = await supabase.auth.getSession();
+
+			if (session) {
+				formData.set('access_token', session.access_token);
+				formData.set('refresh_token', session.refresh_token);
+			}
+
 			return async ({ result, update }) => {
 				if (result.type === 'success') {
 					alert(m.tag_delete_success());
+					await update();
 				}
 			};
 		}}
 		enctype="multipart/form-data"
 	>
-		<button
-			class="delete_button inverse error"
-			type="button"
-			aria-label="Close modal"
-			name="name"
-			value={props.name}
-		>
+		<input type="hidden" name="name" value={props.name} />
+		<button class="delete_button inverse error" type="submit" aria-label="Close modal">
 			<span class="material-symbols-outlined">close</span>
 		</button>
 	</form>

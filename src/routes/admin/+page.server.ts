@@ -111,12 +111,69 @@ export const actions = {
 	remove_item: async ({ request }) => {
 		const formData = await request.formData();
 		const id = Number(formData.get('id') ?? '');
+		const accessToken = String(formData.get('access_token') ?? '');
+		const refreshToken = String(formData.get('refresh_token') ?? '');
 
-		const { error: deleteError } = await supabase.from('item').delete().eq('id', id);
+		if (!Number.isInteger(id) || id <= 0) {
+			return fail(400, { invalidId: true });
+		}
+
+		if (!accessToken || !refreshToken) {
+			return fail(401, { unauthorized: true });
+		}
+
+		const { error: sessionError } = await supabase.auth.setSession({
+			access_token: accessToken,
+			refresh_token: refreshToken
+		});
+
+		if (sessionError) {
+			console.error('Error setting Supabase session:', sessionError.message);
+			return fail(401, { unauthorized: true });
+		}
+
+		const { data: item, error: selectError } = await supabase
+			.from('item')
+			.select('img')
+			.eq('id', id)
+			.single();
+
+		if (selectError) {
+			console.error('Error finding item:', selectError.message);
+			return fail(404, { notFound: true });
+		}
+
+		const { error: tagDeleteError } = await supabase.from('tag_item').delete().eq('item_id', id);
+
+		if (tagDeleteError) {
+			console.error('Error deleting item tags:', tagDeleteError.message);
+			return fail(500, { tagDeleteError: true });
+		}
+
+		const { data: deletedItems, error: deleteError } = await supabase
+			.from('item')
+			.delete()
+			.eq('id', id)
+			.select('id');
 
 		if (deleteError) {
-			console.error('Error inserting tag:', deleteError.message);
+			console.error('Error deleting item:', deleteError.message);
 			return fail(500, { deleteError: true });
+		}
+
+		if (deletedItems.length !== 1) {
+			console.error('Item delete did not return a deleted row:', deletedItems);
+			return fail(404, { notFound: true });
+		}
+
+		if (item.img) {
+			const { error: imageDeleteError } = await supabase.storage
+				.from('item_images')
+				.remove([item.img]);
+
+			if (imageDeleteError) {
+				console.error('Error deleting item image:', imageDeleteError.message);
+			}
 		}
 
 		return { success: true };
@@ -124,13 +181,52 @@ export const actions = {
 
 	remove_tag: async ({ request }) => {
 		const formData = await request.formData();
-		const name = String(formData.get('name') ?? '');
+		const name = String(formData.get('name') ?? '').trim();
+		const accessToken = String(formData.get('access_token') ?? '');
+		const refreshToken = String(formData.get('refresh_token') ?? '');
 
-		const { error: deleteError } = await supabase.from('tag').delete().eq('name', name);
+		if (!name) {
+			return fail(400, { missing: true });
+		}
+
+		if (!accessToken || !refreshToken) {
+			return fail(401, { unauthorized: true });
+		}
+
+		const { error: sessionError } = await supabase.auth.setSession({
+			access_token: accessToken,
+			refresh_token: refreshToken
+		});
+
+		if (sessionError) {
+			console.error('Error setting Supabase session:', sessionError.message);
+			return fail(401, { unauthorized: true });
+		}
+
+		const { error: tagItemDeleteError } = await supabase
+			.from('tag_item')
+			.delete()
+			.eq('tag_name', name);
+
+		if (tagItemDeleteError) {
+			console.error('Error deleting tag items:', tagItemDeleteError.message);
+			return fail(500, { tagItemDeleteError: true });
+		}
+
+		const { data: deletedTags, error: deleteError } = await supabase
+			.from('tag')
+			.delete()
+			.eq('name', name)
+			.select('name');
 
 		if (deleteError) {
-			console.error('Error inserting tag:', deleteError.message);
+			console.error('Error deleting tag:', deleteError.message);
 			return fail(500, { deleteError: true });
+		}
+
+		if (deletedTags.length !== 1) {
+			console.error('Tag delete did not return a deleted row:', deletedTags);
+			return fail(404, { notFound: true });
 		}
 
 		return { success: true };

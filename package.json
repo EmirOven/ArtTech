@@ -34,7 +34,7 @@
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.106.1",
-		"supabase": "^2.100.1",
+		"supabase": "^2.106.0",
 		"swiper": "^12.1.4"
 	}
 }

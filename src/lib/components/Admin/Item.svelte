@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { env } from '$env/dynamic/public';
 	import { m } from '$lib/paraglide/messages';
+	import { supabase } from '$lib/supabaseClient';
 
 	interface Props {
 		id: number;
@@ -24,7 +25,10 @@
 	{#if props.img != null}
 		<img src={IMG_URL} alt="item_image" class="item_img" />
 	{/if}
-	<h1 class="name">{props.name}</h1>
+	<div>
+		<h1 class="name">{props.name}</h1>
+		<h2 class="name">{m.redirect_to()}: <a href={props.link}>{props.link}</a></h2>
+	</div>
 	<p class="description">{props.description}</p>
 	<div class="tags">
 		{#each props.tags as tag}
@@ -37,16 +41,27 @@
 		action="?/remove_item"
 		method="POST"
 		class="delete_form"
-		use:enhance={() => {
+		use:enhance={async ({ formData }) => {
+			const {
+				data: { session }
+			} = await supabase.auth.getSession();
+
+			if (session) {
+				formData.set('access_token', session.access_token);
+				formData.set('refresh_token', session.refresh_token);
+			}
+
 			return async ({ result, update }) => {
 				if (result.type === 'success') {
 					alert(m.item_delete_success());
+					await update();
 				}
 			};
 		}}
 		enctype="multipart/form-data"
 	>
-		<button class="error" name="id" value={props.id}>{m.delete()}</button>
+		<input type="hidden" name="id" value={props.id} />
+		<button type="submit" class="error">{m.delete()}</button>
 	</form>
 	<button>{m.edit()}</button>
 </div>

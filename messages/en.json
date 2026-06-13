@@ -15,6 +15,7 @@
 	"name": "Name",
 	"desc": "Description",
 	"img": "Image",
+  "redirect_to": "Redirects to",
 	"no_file_err": "No file is provided or the provided item is broken.",
 	"upload_err": "Error occured while uploading your file, please try again later.",
 	"purchase_link": "Link to store page",

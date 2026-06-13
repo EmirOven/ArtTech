@@ -15,6 +15,7 @@
 	"name": "İsim",
 	"desc": "Açıklama",
 	"img": "Görsel",
+	"redirect_to": "Şuraya yönlendirir",
 	"no_file_err": "Dosya belirtilmedi veya belirtilen dosya bozuk.",
 	"upload_err": "Dosyanızı yükerken bir sorun oluştu, lütfen daha sonra tekrar deneyin.",
 	"purchase_link": "Mağaza sayfasının bağlantısı",
